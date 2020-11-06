@@ -20,6 +20,32 @@ class Homepages {
 		add_action( 'wp', [ $this, 'update_is_home_conditional' ] );
 
 		add_action( 'save_post', [ $this, 'clear_homepage_cache' ] );
+
+		add_action( 'parse_query', [ $this, 'update_main_query' ] );
+
+		add_action( 'admin_notices', [ $this, 'admin_notices' ] );
+	}
+
+	/**
+	 * Updates the main query object to use the custom homepage when available.
+	 *
+	 * @param \WP_Query $wp_query The query object.
+	 */
+	public function update_main_query( $wp_query ) {
+		if (
+			! is_admin()
+			&& $wp_query->is_main_query()
+			&& $wp_query->is_home
+		) {
+			// See if we have a valid homepage.
+			$homepage_id = $this->get_latest_homepage_id();
+
+			if ( ! empty( $homepage_id ) ) {
+				$wp_query->set( 'p', $homepage_id );
+				$wp_query->set( 'post_type', 'homepage' );
+				$wp_query->set( 'posts_per_page', 1 );
+			}
+		}
 	}
 
 	/**
@@ -110,6 +136,9 @@ class Homepages {
 			$homepage_id = $homepage_query->posts[0]->ID;
 		}
 
+		// Cast to an int.
+		$homepage_id = absint( $homepage_id );
+
 		// Save this to the cache.
 		set_transient( $cache_key, $homepage_id, 15 * MINUTE_IN_SECONDS );
 
@@ -124,6 +153,21 @@ class Homepages {
 	public function clear_homepage_cache( $post_id ) {
 		if ( get_post_type( $post_id ) === 'homepage' ) {
 			delete_transient( 'homepage_latest_id' );
+		}
+	}
+
+	/**
+	 * Display admin notices if the site is not configured properly.
+	 */
+	public function admin_notices() {
+		// This plugin assumes that the homepage is set to display the latest posts.
+		// If this is not set then the plugin will not work.
+		if ( 'posts' !== get_option( 'show_on_front' ) ) {
+			?>
+			<div class="notice notice-error">
+				<p><?php esc_html_e( 'Homepages will only work when the site is set to display the latest posts on the homepage. Please update this setting', 'homepages' ); ?> <a href="<?php echo esc_url( admin_url( '/options-reading.php' ) ); ?>"><?php esc_html_e( 'here', 'homepages' ); ?></a>.</p>
+			</div>
+			<?php
 		}
 	}
 }

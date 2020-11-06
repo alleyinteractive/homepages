@@ -7,12 +7,12 @@
  */
 
 // Load Core's test suite.
-$wp_starter_plugin_tests_dir = getenv( 'WP_TESTS_DIR' );
-if ( ! $wp_starter_plugin_tests_dir ) {
-	$wp_starter_plugin_tests_dir = '/tmp/wordpress-tests-lib';
+$homepages_tests_dir = getenv( 'WP_TESTS_DIR' );
+if ( ! $homepages_tests_dir ) {
+	$homepages_tests_dir = '/tmp/wordpress-tests-lib';
 }
 
-require_once $wp_starter_plugin_tests_dir . '/includes/functions.php'; // phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.UsingVariable
+require_once $homepages_tests_dir . '/includes/functions.php'; // phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.UsingVariable
 
 /**
  * Setup our environment.
@@ -37,4 +37,4 @@ function homepages_manually_load_environment() {
 tests_add_filter( 'muplugins_loaded', 'homepages_manually_load_environment' );
 
 // Include core's bootstrap.
-require $wp_starter_plugin_tests_dir . '/includes/bootstrap.php'; // phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.UsingVariable
+require $homepages_tests_dir . '/includes/bootstrap.php'; // phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.UsingVariable

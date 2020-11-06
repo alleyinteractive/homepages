@@ -84,7 +84,7 @@ class Homepages {
 	 *
 	 * @return int $homepage_id The latest homepage ID.
 	 */
-	public function get_latest_homepage_id() : int {
+	public function get_latest_homepage_id() {
 		// Get the previewed homepage.
 		if ( is_preview() && isset( $_GET['p'] ) ) {
 			return absint( $_GET['p'] );
@@ -98,14 +98,15 @@ class Homepages {
 			return (int) $homepage_id;
 		}
 
-		$homepage_query = new WP_Query(
+		$homepage_query = new \WP_Query(
 			[
 				'post_type'      => 'homepage',
 				'posts_per_page' => 1,
+				'no_found_rows'  => true,
 			]
 		);
 
-		if ( ! empty( $homepage_query->posts[0] ) && $homepage_query->posts[0] instanceof WP_Post ) {
+		if ( ! empty( $homepage_query->posts[0] ) && $homepage_query->posts[0] instanceof \WP_Post ) {
 			$homepage_id = $homepage_query->posts[0]->ID;
 		}
 

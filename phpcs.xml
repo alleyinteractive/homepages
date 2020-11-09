@@ -12,9 +12,6 @@
 	<!-- Check both PHP and JS files. -->
 	<arg name="extensions" value="php,js" />
 
-	<!-- Set severity to 1 to see everything that isn't effectively turned off. -->
-	<arg name="severity" value="1" />
-
 	<!-- Check all files in this directory and the directories below it. -->
 	<file>.</file>
 

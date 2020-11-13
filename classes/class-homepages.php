@@ -33,7 +33,7 @@ class Homepages {
 	 */
 	public function update_main_query( $wp_query ) {
 		/**
-		 * Filter whether of not this plugin will modifiy the main query on the
+		 * Filter whether or not this plugin will modify the main query on the
 		 * homepage.
 		 *
 		 * @param bool Disable homepage from modifying the query.

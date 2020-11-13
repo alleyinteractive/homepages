@@ -32,19 +32,23 @@ class Homepages {
 	 * @param \WP_Query $wp_query The query object.
 	 */
 	public function update_main_query( $wp_query ) {
+		/**
+		 * Filter whether of not this plugin will modifiy the main query on the
+		 * homepage.
+		 *
+		 * @param bool Disable homepag modify query.
+		 */
+		if ( ! apply_filters( 'homepages_modify_main_query', true ) ) {
+			return;
+		}
+
 		if (
 			! is_admin()
 			&& $wp_query->is_main_query()
 			&& $wp_query->is_home
 		) {
-			// See if we have a valid homepage.
-			$homepage_id = $this->get_latest_homepage_id();
-
-			if ( ! empty( $homepage_id ) ) {
-				$wp_query->set( 'p', $homepage_id );
-				$wp_query->set( 'post_type', 'homepage' );
-				$wp_query->set( 'posts_per_page', 1 );
-			}
+			$wp_query->set( 'post_type', 'homepage' );
+			$wp_query->set( 'posts_per_page', 1 );
 		}
 	}
 

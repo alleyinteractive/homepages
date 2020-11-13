@@ -36,7 +36,7 @@ class Homepages {
 		 * Filter whether of not this plugin will modifiy the main query on the
 		 * homepage.
 		 *
-		 * @param bool Disable homepag modify query.
+		 * @param bool Disable homepage from modifying the query.
 		 */
 		if ( ! apply_filters( 'homepages_modify_main_query', true ) ) {
 			return;

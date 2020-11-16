@@ -81,11 +81,11 @@ class Homepages {
 				'items_list'            => __( 'Homepages list', 'homepages' ),
 				'menu_name'             => __( 'Homepages', 'homepages' ),
 			],
-			'public'              => false,
-			'publicly_queryable'  => true,
+			'public'              => true,
 			'exclude_from_search' => true,
 			'show_ui'             => true,
 			'show_in_rest'        => true,
+			'rewrite'             => false,
 			'menu_icon'           => 'dashicons-admin-home',
 			'supports'            => [ 'title', 'editor', 'thumbnail', 'revisions' ],
 		];

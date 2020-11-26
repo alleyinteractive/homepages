@@ -21,9 +21,40 @@ class Homepages {
 
 		add_action( 'save_post', [ $this, 'clear_homepage_cache' ] );
 
-		add_action( 'parse_query', [ $this, 'update_main_query' ] );
+		add_action( 'init', [ $this, 'has_published_homepage_filter' ] );
 
 		add_action( 'admin_notices', [ $this, 'admin_notices' ] );
+	}
+
+	/**
+	 * Only change the main query if we have at least one published homepage.
+	 */
+	public function has_published_homepage_filter() {
+		static $has_homepage;
+
+		$has_homepage = $this->has_homepage();
+
+		if ( $has_homepage ) {
+			add_action( 'parse_query', [ $this, 'update_main_query' ] );
+		}
+	}
+
+	/**
+	 * Check if we have at least one published homepage.
+	 *
+	 * @return boolean
+	 */
+	public function has_homepage(): bool {
+		$homepage_query = new \WP_Query(
+			[
+				'post_type'      => 'homepage',
+				'posts_per_page' => 1,
+				'post_status'    => 'publish',
+				'no_found_rows'  => true,
+			]
+		);
+
+		return ( ! empty( $homepage_query->posts[0] ) && $homepage_query->posts[0] instanceof \WP_Post );
 	}
 
 	/**
@@ -49,6 +80,7 @@ class Homepages {
 		) {
 			$wp_query->set( 'post_type', 'homepage' );
 			$wp_query->set( 'posts_per_page', 1 );
+			$wp_query->set( 'post_status', 'publish' );
 		}
 	}
 

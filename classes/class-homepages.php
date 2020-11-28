@@ -150,6 +150,7 @@ class Homepages {
 		$cache_key   = 'homepage_latest_id';
 		$homepage_id = get_transient( $cache_key );
 
+		// We have a cache hit, so lets use that.
 		if ( false !== $homepage_id ) {
 			return (int) $homepage_id;
 		}
@@ -188,7 +189,7 @@ class Homepages {
 	}
 
 	/**
-	 * Save has_published_homepage option after a homepage is published.
+	 * Save the `has_published_homepage` option after a homepage is published.
 	 *
 	 * @param string   $new  New Post Status.
 	 * @param string   $old  Old Post Status.

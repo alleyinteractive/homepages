@@ -28,19 +28,10 @@ class Homepages {
 
 		add_action( 'save_post', [ $this, 'clear_homepage_cache' ] );
 
-		add_action( 'init', [ $this, 'has_published_homepage_filter' ] );
+		add_action( 'parse_query', [ $this, 'update_main_query' ] );
 
 		add_action( 'admin_notices', [ $this, 'admin_notices' ] );
 		add_action( 'transition_post_status', [ $this, 'add_has_published_homepage_option' ], 10, 3 );
-	}
-
-	/**
-	 * Only change the main query if we have at least one published homepage.
-	 */
-	public function has_published_homepage_filter() {
-		if ( $this->has_homepage() ) {
-			add_action( 'parse_query', [ $this, 'update_main_query' ] );
-		}
 	}
 
 	/**
@@ -68,6 +59,14 @@ class Homepages {
 			return;
 		}
 
+		/**
+		 * Before trying to modify the main query,
+		 * check if we have a published homepage first.
+		 */
+		if ( false === $this->has_homepage() ) {
+			return;
+		}
+
 		if (
 			! is_admin()
 			&& $wp_query->is_main_query()
@@ -75,7 +74,6 @@ class Homepages {
 		) {
 			$wp_query->set( 'post_type', $this->post_type );
 			$wp_query->set( 'posts_per_page', 1 );
-			$wp_query->set( 'post_status', 'publish' );
 		}
 	}
 
@@ -196,7 +194,11 @@ class Homepages {
 	 * @param \WP_Post $post Post Object.
 	 */
 	public function add_has_published_homepage_option( $new, $old, $post ) {
-		if ( ( $new === 'publish' ) && ( $old !== 'publish' ) && ( $post->post_type === $this->post_type ) ) {
+		if (
+			$new === 'publish'
+			&& $old !== 'publish'
+			&& $post->post_type === $this->post_type
+		) {
 			\update_option( 'has_published_homepage', true );
 		}
 	}

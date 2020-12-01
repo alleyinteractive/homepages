@@ -49,21 +49,15 @@ class Homepages {
 	 * @param \WP_Query $wp_query The query object.
 	 */
 	public function update_main_query( $wp_query ) {
+		$modify_main_query = $this->has_homepage();
+
 		/**
 		 * Filter whether or not this plugin will modify the main query on the
 		 * homepage.
 		 *
 		 * @param bool Disable homepage from modifying the query.
 		 */
-		if ( ! apply_filters( 'homepages_modify_main_query', true ) ) {
-			return;
-		}
-
-		/**
-		 * Before trying to modify the main query,
-		 * check if we have a published homepage first.
-		 */
-		if ( false === $this->has_homepage() ) {
+		if ( ! apply_filters( 'homepages_modify_main_query', $modify_main_query ) ) {
 			return;
 		}
 
@@ -157,7 +151,6 @@ class Homepages {
 			[
 				'post_type'      => $this->post_type,
 				'posts_per_page' => 1,
-				'post_status'    => 'publish',
 				'no_found_rows'  => true,
 			]
 		);

@@ -195,7 +195,7 @@ class Homepages {
 	 */
 	public function add_has_published_homepage_option( $new, $old, $post ) {
 		if (
-			'publish'=== $new
+			'publish' === $new
 			&& 'publish' !== $old
 			&& $post->post_type === $this->post_type
 		) {

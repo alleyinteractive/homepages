@@ -13,6 +13,5 @@ namespace Homepages;
  * @return int $homepage_id The latest homepage ID.
  */
 function get_latest_homepage_id() {
-	$homepages = new Homepages();
-	return $homepages->get_latest_homepage_id();
+	return ( new Homepages() )->get_latest_homepage_id();
 }

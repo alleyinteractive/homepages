@@ -13,6 +13,13 @@ namespace Homepages;
 class Homepages {
 
 	/**
+	 * Homepage post type slug.
+	 *
+	 * @var string
+	 */
+	private $post_type = 'homepage';
+
+	/**
 	 * Setup the instance.
 	 */
 	public function setup() {
@@ -24,6 +31,16 @@ class Homepages {
 		add_action( 'parse_query', [ $this, 'update_main_query' ] );
 
 		add_action( 'admin_notices', [ $this, 'admin_notices' ] );
+		add_action( 'transition_post_status', [ $this, 'add_has_published_homepage_option' ], 10, 3 );
+	}
+
+	/**
+	 * Check if we have at least one published homepage.
+	 *
+	 * @return bool
+	 */
+	public function has_homepage(): bool {
+		return (bool) get_option( 'has_published_homepage', false );
 	}
 
 	/**
@@ -32,13 +49,15 @@ class Homepages {
 	 * @param \WP_Query $wp_query The query object.
 	 */
 	public function update_main_query( $wp_query ) {
+		$modify_main_query = $this->has_homepage();
+
 		/**
 		 * Filter whether or not this plugin will modify the main query on the
 		 * homepage.
 		 *
 		 * @param bool Disable homepage from modifying the query.
 		 */
-		if ( ! apply_filters( 'homepages_modify_main_query', true ) ) {
+		if ( ! apply_filters( 'homepages_modify_main_query', $modify_main_query ) ) {
 			return;
 		}
 
@@ -47,7 +66,7 @@ class Homepages {
 			&& $wp_query->is_main_query()
 			&& $wp_query->is_home
 		) {
-			$wp_query->set( 'post_type', 'homepage' );
+			$wp_query->set( 'post_type', $this->post_type );
 			$wp_query->set( 'posts_per_page', 1 );
 		}
 	}
@@ -90,7 +109,7 @@ class Homepages {
 			'supports'            => [ 'title', 'editor', 'thumbnail', 'revisions' ],
 		];
 
-		register_post_type( 'homepage', $args );
+		register_post_type( $this->post_type, $args );
 	}
 
 	/**
@@ -99,7 +118,7 @@ class Homepages {
 	public function update_is_home_conditional() {
 		global $wp_query;
 
-		if ( is_singular( 'homepage' ) ) {
+		if ( is_singular( $this->post_type ) ) {
 
 			if ( ! is_user_logged_in() ) {
 				$wp_query->set_404();
@@ -130,7 +149,7 @@ class Homepages {
 
 		$homepage_query = new \WP_Query(
 			[
-				'post_type'      => 'homepage',
+				'post_type'      => $this->post_type,
 				'posts_per_page' => 1,
 				'no_found_rows'  => true,
 			]
@@ -155,8 +174,25 @@ class Homepages {
 	 * @param int $post_id The current post ID.
 	 */
 	public function clear_homepage_cache( $post_id ) {
-		if ( get_post_type( $post_id ) === 'homepage' ) {
+		if ( get_post_type( $post_id ) === $this->post_type ) {
 			delete_transient( 'homepage_latest_id' );
+		}
+	}
+
+	/**
+	 * Save the `has_published_homepage` option after a homepage is published.
+	 *
+	 * @param string   $new  New Post Status.
+	 * @param string   $old  Old Post Status.
+	 * @param \WP_Post $post Post Object.
+	 */
+	public function add_has_published_homepage_option( $new, $old, $post ) {
+		if (
+			'publish' === $new
+			&& 'publish' !== $old
+			&& $post->post_type === $this->post_type
+		) {
+			\update_option( 'has_published_homepage', true );
 		}
 	}
 

@@ -106,7 +106,7 @@ class Homepages {
 			'show_in_rest'        => true,
 			'rewrite'             => false,
 			'menu_icon'           => 'dashicons-admin-home',
-			'supports'            => [ 'title', 'editor', 'thumbnail', 'revisions' ],
+			'supports'            => [ 'title', 'editor', 'thumbnail', 'revisions', 'custom-fields' ],
 		];
 
 		register_post_type( $this->post_type, $args );

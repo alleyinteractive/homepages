@@ -24,13 +24,13 @@ class Homepages {
 	 */
 	public function setup() {
 		add_action( 'init', [ $this, 'create_post_type' ] );
+
 		add_action( 'wp', [ $this, 'update_is_home_conditional' ] );
 
 		add_action( 'save_post', [ $this, 'clear_homepage_cache' ] );
 
 		add_action( 'parse_query', [ $this, 'update_main_query' ] );
 
-		add_action( 'admin_notices', [ $this, 'admin_notices' ] );
 		add_action( 'transition_post_status', [ $this, 'add_has_published_homepage_option' ], 10, 3 );
 	}
 
@@ -41,6 +41,22 @@ class Homepages {
 	 */
 	public function has_homepage(): bool {
 		return (bool) get_option( 'has_published_homepage', false );
+	}
+
+	/**
+	 * Check whether the current query is a front_page query.
+	 *
+	 * Supports homepage settings for both static pages or latest posts.
+	 *
+	 * @param \WP_Query $query The WP_Query object to test.
+	 * @return boolean Whether the current query is a front page query.
+	 */
+	public function is_front_page( \WP_Query $query = null ): bool {
+		if ( 'page' === get_option( 'show_on_front' ) ) {
+			return ( $query->get( 'page_id' ) == get_option( 'page_on_front' ) );
+		}
+
+		return $query->is_home;
 	}
 
 	/**
@@ -64,7 +80,7 @@ class Homepages {
 		if (
 			! is_admin()
 			&& $wp_query->is_main_query()
-			&& $wp_query->is_home
+			&& $this->is_front_page( $wp_query )
 		) {
 			$wp_query->set( 'post_type', $this->post_type );
 			$wp_query->set( 'posts_per_page', 1 );
@@ -193,21 +209,6 @@ class Homepages {
 			&& $post->post_type === $this->post_type
 		) {
 			\update_option( 'has_published_homepage', true );
-		}
-	}
-
-	/**
-	 * Display admin notices if the site is not configured properly.
-	 */
-	public function admin_notices() {
-		// This plugin assumes that the homepage is set to display the latest posts.
-		// If this is not set then the plugin will not work.
-		if ( 'posts' !== get_option( 'show_on_front' ) ) {
-			?>
-			<div class="notice notice-error">
-				<p><?php esc_html_e( 'Homepages will only work when the site is set to display the latest posts on the homepage. Please update this setting', 'homepages' ); ?> <a href="<?php echo esc_url( admin_url( '/options-reading.php' ) ); ?>"><?php esc_html_e( 'here', 'homepages' ); ?></a>.</p>
-			</div>
-			<?php
 		}
 	}
 }

@@ -139,7 +139,7 @@ class Homepages {
 			if ( ! is_user_logged_in() ) {
 				$wp_query->set_404();
 			} else {
-				$wp_query->is_home = true;
+				$wp_query->is_home = ( 'posts' === get_option( 'show_on_front' ) );
 			}
 		}
 	}

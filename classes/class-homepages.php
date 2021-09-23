@@ -29,7 +29,13 @@ class Homepages {
 
 		add_action( 'save_post', [ $this, 'clear_homepage_cache' ] );
 
-		add_action( 'parse_query', [ $this, 'update_main_query' ] );
+		// Modifications for static homepages.
+		if ( $this->static_front_page_enabled() ) {
+			add_filter( 'posts_results', [ $this, 'shortcircuit_posts_results' ], 10, 2 );
+			add_filter( 'pre_get_document_title', [ $this, 'update_doc_title' ] );
+		} else {
+			add_action( 'parse_query', [ $this, 'update_main_query' ] );
+		}
 
 		add_action( 'transition_post_status', [ $this, 'add_has_published_homepage_option' ], 10, 3 );
 	}
@@ -44,19 +50,101 @@ class Homepages {
 	}
 
 	/**
-	 * Check whether the current query is a front_page query.
+	 * Determine if the static homepage setting is enabled.
 	 *
-	 * Supports homepage settings for both static pages or latest posts.
-	 *
-	 * @param \WP_Query $query The WP_Query object to test.
-	 * @return boolean Whether the current query is a front page query.
+	 * @return boolean True if the static homepage setting is enabled, otherwise false.
 	 */
-	public function is_front_page( \WP_Query $query = null ): bool {
-		if ( 'page' === get_option( 'show_on_front' ) ) {
-			return ( $query->get( 'page_id' ) == get_option( 'page_on_front' ) );
+	public function static_front_page_enabled() : bool {
+		return 'page' === get_option( 'show_on_front' );
+	}
+
+	/**
+	 * Check if the site admin has set a static homepage.
+	 *
+	 * @param \WP_Query $wp_query The query object.
+	 * @return boolean True if this is the static homepage, otherwise false.
+	 */
+	public function is_static_front_page( $wp_query ) : bool {
+		if (
+			! is_admin()
+			&& $this->static_front_page_enabled()
+			&& absint( $wp_query->get( 'page_id' ) ) === absint( get_option( 'page_on_front' ) )
+		) {
+			return true;
 		}
 
-		return $query->is_home;
+		return false;
+	}
+
+	/**
+	 * Filters the posts results array to ensure that the latest homepage is used
+	 * when the static homepage option is enabled.
+	 * 
+	 * @param array     $post_results The posts results.
+	 * @param \WP_Query $wp_query The query object.
+	 * @return array $posts_resuts The posts results.
+	 */
+	public function shortcircuit_posts_results( $post_results, $wp_query ) {
+		if ( ! $this->is_static_front_page( $wp_query ) ) {
+			return $post_results;
+		}
+
+		/**
+		 * Filter whether or not this plugin will modify the posts results.
+		 *
+		 * @param bool Disable homepage from modifying the posts results.
+		 */
+		if ( ! apply_filters( 'homepages_modify_post_results', true ) ) {
+			return $post_results;
+		}
+
+		// Ensure is_home is set.
+		$wp_query->is_home     = true;
+		$wp_query->is_page     = false;
+		$wp_query->is_singular = false;
+
+		// Get the latest homepage ID.
+		remove_filter( 'posts_results', [ $this, 'shortcircuit_posts_results' ], 10, 2 );
+		$latest_homepage_id = $this->get_latest_homepage_id();
+		add_filter( 'posts_results', [ $this, 'shortcircuit_posts_results' ], 10, 2 );
+
+		// Force the post results to be the latest homepage.
+		if ( ! empty( $latest_homepage_id ) ) {
+			return [ get_post( $latest_homepage_id ) ];
+		}
+
+		return $post_results;
+	}
+
+	/**
+	 * Fitlers the document title on the static front page.
+	 * 
+	 * @param string $title The document title.
+	 * @return string The document title.
+	 */
+	public function update_doc_title( $title ) {
+		global $wp_query;
+		if ( ! $this->is_static_front_page( $wp_query ) ) {
+			return $title;
+		}
+
+		/**
+		 * Filter whether or not this plugin will modify the document title.
+		 *
+		 * @param bool Disable homepage from modifying the document title.
+		 */
+		if ( ! apply_filters( 'homepages_modify_document_title', true ) ) {
+			return $title;
+		}
+
+		// Get the front page.
+		$front_page = get_post( get_option( 'page_on_front', 0 ) );
+
+		if ( $front_page instanceof \WP_Post ) {
+			return $front_page->post_title;
+		}
+
+		return $title;
 	}
 
 	/**
@@ -80,12 +168,10 @@ class Homepages {
 		if (
 			! is_admin()
 			&& $wp_query->is_main_query()
-			&& $this->is_front_page( $wp_query )
+			&& $wp_query->is_home()
 		) {
 			$wp_query->set( 'post_type', $this->post_type );
 			$wp_query->set( 'posts_per_page', 1 );
-			// Reset the page ID if using static pages for the homepage.
-			$wp_query->set( 'page_id', null );
 		}
 	}
 

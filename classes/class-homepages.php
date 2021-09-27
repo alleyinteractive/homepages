@@ -84,8 +84,6 @@ class Homepages {
 		) {
 			$wp_query->set( 'post_type', $this->post_type );
 			$wp_query->set( 'posts_per_page', 1 );
-			// Reset the page ID if using static pages for the homepage.
-			$wp_query->set( 'page_id', null );
 		}
 	}
 

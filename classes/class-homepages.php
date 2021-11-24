@@ -119,7 +119,6 @@ class Homepages {
 	public function update_homepage_query_conditionals() {
 		global $wp_query;
 
-		// Bail if this is an admin page.
 		if ( is_admin() || ! is_singular( $this->post_type ) ) {
 			return;
 		}
@@ -143,7 +142,8 @@ class Homepages {
 		global $wp_query;
 
 		if (
-			! is_admin() 
+			! is_admin()
+			&& $wp_query->is_main_query() // Ensure we only alter the main query.
 			&& is_home()
 			&& is_paged()
 		) {

@@ -38,7 +38,7 @@ class Homepages_Tests extends \WP_UnitTestCase {
 		$this->assertEquals( get_latest_homepage_id(), $another_homepage_id );
 	}
 
-	function test_update_is_home_conditional() {
+	function test_update_homepage_query_conditionals() {
 		// Create a new homepage.
 		$homepage_id = self::factory()->post->create(
 			[
@@ -64,6 +64,44 @@ class Homepages_Tests extends \WP_UnitTestCase {
 
 		// Ensure we have the proper conditionals set.
 		$this->assertTrue( is_home() );
+	}
+
+	function test_not_set_404_on_pagination() {
+		// Create homepages.
+		$homepage_ids = self::factory()->post->create_many(
+			10,
+			[
+				'post_type' => 'homepage',
+			]
+		);
+
+		// Go to the homepage.
+		$this->go_to( home_url() );
+
+		global $wp_query;
+
+		// Ensure we have the proper conditionals set.
+		$this->assertTrue( is_home() );
+		$this->assertFalse( is_404() );
+		$this->assertEquals( $homepage_ids[9], $wp_query->posts[0]->ID );
+	}
+
+	function test_set_404_on_pagination() {
+		// Create homepages.
+		$homepage_ids = self::factory()->post->create_many(
+			10,
+			[
+				'post_type' => 'homepage',
+			]
+		);
+
+		// No pagination.
+		$this->go_to( home_url() );
+		$this->assertFalse( is_404() );
+
+		// Pagination.
+		$this->go_to( home_url( '?paged=2' ) );
+		$this->assertTrue( is_404() );
 	}
 
 	function test_redirect_to_404() {

@@ -1,0 +1,25 @@
+{
+    "name": "alleyinteractive/homepages",
+    "description": "Homepages",
+    "type": "project",
+    "authors": [
+      {
+        "name": "Alley Interactive",
+        "email": "noreply@alleyinteractive.com"
+      }
+    ],
+    "require-dev": {
+      "alleyinteractive/alley-coding-standards": "^0.3.0",
+      "phpunit/phpunit": "7.5.*",
+      "yoast/phpunit-polyfills": "^1.0"
+    },
+    "scripts": {
+      "phpcbf": "phpcbf .",
+      "phpcs": "phpcs . --runtime-set text_domain homepages --runtime-set prefixes homepages",
+      "phpunit": "phpunit",
+      "setup": [
+        "composer install",
+        ". $NVM_DIR/nvm.sh && nvm use && npm ci && npm run build"
+      ]
+    }
+  }

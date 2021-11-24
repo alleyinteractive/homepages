@@ -24,7 +24,8 @@ class Homepages {
 	 */
 	public function setup() {
 		add_action( 'init', [ $this, 'create_post_type' ] );
-		add_action( 'wp', [ $this, 'update_is_home_conditional' ] );
+		add_action( 'wp', [ $this, 'update_homepage_query_conditionals' ] );
+		add_action( 'wp', [ $this, 'set_404_on_pagination' ] );
 
 		add_action( 'save_post', [ $this, 'clear_homepage_cache' ] );
 
@@ -113,18 +114,40 @@ class Homepages {
 	}
 
 	/**
-	 * When viewing a homepage, update the query to have `is_home` set to true.
+	 * Updates the main \WP_Query object conditionals for single homepages.
 	 */
-	public function update_is_home_conditional() {
+	public function update_homepage_query_conditionals() {
 		global $wp_query;
 
-		if ( is_singular( $this->post_type ) ) {
+		// Bail if this is an admin page.
+		if ( is_admin() || ! is_singular( $this->post_type ) ) {
+			return;
+		}
 
-			if ( ! is_user_logged_in() ) {
-				$wp_query->set_404();
-			} else {
-				$wp_query->is_home = true;
-			}
+		// Ensure all single homeapges 404 for any user that is not logged in.
+		if ( ! is_user_logged_in() ) {
+			$wp_query->set_404();
+		} else {
+			$wp_query->is_home = true;
+		}
+	}
+
+	/**
+	 * Sets any paginated page to a 404.
+	 * 
+	 * Only the latest homepage should be public and any other homepages should 
+	 * be private. This occurs when navigating to a URL like `/page/2` where the
+	 * main query will attempt to get the second published homepage. 
+	 */
+	public function set_404_on_pagination() {
+		global $wp_query;
+
+		if (
+			! is_admin() 
+			&& is_home()
+			&& is_paged()
+		) {
+			$wp_query->set_404();
 		}
 	}
 

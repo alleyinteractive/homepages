@@ -30,6 +30,8 @@ class Homepages {
 		add_action( 'save_post', [ $this, 'clear_homepage_cache' ] );
 
 		add_action( 'parse_query', [ $this, 'update_main_query' ] );
+		add_filter( "rest_{$this->post_type}_query", [ $this, 'rest_only_expose_latest_homepage' ] );
+		add_filter( 'rest_pre_dispatch', [ $this, 'prevent_paginated_rest_requests' ], 10, 3 );
 
 		add_action( 'admin_notices', [ $this, 'admin_notices' ] );
 		add_action( 'transition_post_status', [ $this, 'add_has_published_homepage_option' ], 10, 3 );
@@ -70,6 +72,49 @@ class Homepages {
 			$wp_query->set( 'post_type', $this->post_type );
 			$wp_query->set( 'posts_per_page', 1 );
 		}
+	}
+
+	/**
+	 * Ensures that the REST API endpoint for homepages only returns the latest
+	 * homepage.
+	 * 
+	 * @param array $args The query args.
+	 * @return array $args The query args.
+	 */
+	public function rest_only_expose_latest_homepage( $args ) {
+		// Always return the latest homepage.
+		$args['posts_per_page'] = 1;
+
+		return $args;
+	}
+
+	/**
+	 * Prevent paginated requests to the API that can expose older homepages.
+	 * 
+	 * @param mixed            $result  Response to replace the requested version
+	 *                                  with. Can be anything a normal endpoint
+	 *                                  can return, or null to not hijack the request.
+	 * @param \WP_REST_Server  $server  Server instance.
+	 * @param \WP_REST_Request $request Request used to generate the response.
+	 */
+	public function prevent_paginated_rest_requests( $result, $server, $request ) {
+		// Bail if this is not a homepages endpoint.
+		if ( $request->get_route() !== '/wp/v2/homepage' ) {
+			return $result;
+		}
+
+		$params = $request->get_params();
+
+		// Return nothing for paged requests.
+		if ( ! empty( $params['page'] ) && absint( $params['page'] ) > 1 ) {
+			return new \WP_Error(
+				'rest_forbidden',
+				__( 'Sorry, you are not allowed to do that.', 'homepages' ),
+				array( 'status' => rest_authorization_required_code() )
+			);
+		}
+
+		return $result;
 	}
 
 	/**

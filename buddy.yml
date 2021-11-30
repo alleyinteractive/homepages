@@ -32,6 +32,17 @@
         - "/:/buddy/homepages"
       trigger_condition: "ALWAYS"
       shell: "BASH"
+    - action: "Composer install"
+      type: "BUILD"
+      working_directory: "/buddy/wp-starter-plugin"
+      docker_image_name: "alleyops/ci-resources"
+      docker_image_tag: "7.4-fpm-wp"
+      execute_commands:
+        - "composer install -q"
+      volume_mappings:
+        - "/:/buddy/wp-starter-plugin"
+      trigger_condition: "ALWAYS"
+      shell: "BASH"
     - action: "Prepare WordPress test environment"
       type: "BUILD"
       working_directory: "/buddy/homepages"

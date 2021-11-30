@@ -8,6 +8,26 @@
 namespace Homepages;
 
 class Homepages_Tests extends \WP_UnitTestCase {
+	/**
+	 * Holds REST server instance.
+	 *
+	 * @var WP_REST_Server
+	 */
+	protected $wp_rest_server;
+
+	/**
+	 * Maps REST server, builds subject class and hooks init.
+	 */
+	public function setUp() {
+		parent::setUp();
+
+		if ( ! $this->wp_rest_server ) {
+			$this->wp_rest_server = rest_get_server();
+		}
+
+		do_action( 'rest_api_init' );
+	}
+
 	function test_get_latest_homepage_id() {
 		// Without a homepage created we will expect nothing to be returned.
 		$this->assertEquals( get_latest_homepage_id(), 0 );
@@ -116,5 +136,42 @@ class Homepages_Tests extends \WP_UnitTestCase {
 
 		// Ensure we have the proper conditionals set.
 		$this->assertTrue( is_404() );
+	}
+
+	function test_rest_api_latest_homepage() {
+		// Create homepages.
+		$homepage_ids = self::factory()->post->create_many(
+			10,
+			[
+				'post_type' => 'homepage',
+			]
+		);
+
+		$request = new \WP_REST_Request( 'GET', "/wp/v2/homepage" );
+		$response = $this->wp_rest_server->dispatch( $request );
+
+		$this->assertEquals( 1, count( $response->data ) );
+		$this->assertEquals( $homepage_ids[9], $response->data[0]['id'] );
+	}
+
+	function test_rest_api_prevent_paginated_requests() {
+		// Create homepages.
+		$homepage_ids = self::factory()->post->create_many(
+			10,
+			[
+				'post_type' => 'homepage',
+			]
+		);
+
+		$request = new \WP_REST_Request( 'GET', "/wp/v2/homepage" );
+		$request->set_param( 'page', 2 );
+		$response = $this->wp_rest_server->dispatch( $request );
+
+		$this->assertInstanceOf( 'WP_Error', $response );
+		$this->assertEquals( 'rest_forbidden', $response->get_error_code() );
+		
+		$data = $response->get_error_data();
+		$this->assertArrayHasKey( 'status', $data );
+		$this->assertEquals( 401, $data['status'] );
 	}
 }

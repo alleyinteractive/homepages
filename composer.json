@@ -1,7 +1,7 @@
 {
     "name": "alleyinteractive/homepages",
     "description": "Homepages",
-    "type": "project",
+    "type": "wordpress-plugin",
     "authors": [
       {
         "name": "Alley Interactive",

@@ -211,7 +211,7 @@ class Homepages {
 		$homepage_id = get_transient( $cache_key );
 
 		// We have a cache hit, so lets use that.
-		if ( false !== $homepage_id ) {
+		if ( ! empty( $homepage_id ) ) {
 			return (int) $homepage_id;
 		}
 

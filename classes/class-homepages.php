@@ -230,8 +230,10 @@ class Homepages {
 		// Cast to an int.
 		$homepage_id = absint( $homepage_id );
 
-		// Save this to the cache.
-		set_transient( $cache_key, $homepage_id, 15 * MINUTE_IN_SECONDS );
+		// Save this to the cache if the ID is a "good" value.
+		if ( ! empty( $homepage_id ) ) {
+			set_transient( $cache_key, $homepage_id, 15 * MINUTE_IN_SECONDS );
+		}
 
 		return (int) $homepage_id;
 	}

@@ -14,7 +14,6 @@ use Mantle\Testing\Concerns\Makes_Http_Requests;
  * Test suite for the Homepages functionality.
  */
 class Homepages_Tests extends Test_Case {
-	use Makes_Http_Requests;
 
 	/**
 	 * Set up the test environment.

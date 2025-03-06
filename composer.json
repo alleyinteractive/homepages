@@ -28,7 +28,7 @@
     "scripts": {
       "phpcbf": "phpcbf .",
       "phpcs": "phpcs .",
-      "phpstan": "phpstan",
+      "phpstan": "phpstan --memory-limit=1G",
       "phpunit": "phpunit",
       "lint": [
         "@phpcs",

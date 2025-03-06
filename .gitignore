@@ -1,2 +1,3 @@
 vendor
-.phpcs
+.phpcs.cache.json
+.phpunit.result.cache

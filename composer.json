@@ -28,7 +28,7 @@
     },
     "scripts": {
       "phpcbf": "phpcbf .",
-      "phpcs": "phpcs . --runtime-set text_domain homepages --runtime-set prefixes homepages",
+      "phpcs": "phpcs .",
       "phpstan": "phpstan",
       "phpunit": "phpunit",
       "lint": [

@@ -12,10 +12,10 @@
 namespace Homepages;
 
 // Homepages Class.
-require_once dirname( __FILE__ ) . '/classes/class-homepages.php';
+require_once __DIR__ . '/classes/class-homepages.php';
 
 // Helpers.
-require_once dirname( __FILE__ ) . '/inc/helpers.php';
+require_once __DIR__ . '/inc/helpers.php';
 
 $homepages_class_instance = new Homepages();
 $homepages_class_instance->setup();

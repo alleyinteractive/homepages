@@ -6,35 +6,29 @@
  * @subpackage Tests
  */
 
-// Load Core's test suite.
-$homepages_tests_dir = getenv( 'WP_TESTS_DIR' );
-if ( ! $homepages_tests_dir ) {
-	$homepages_tests_dir = '/tmp/wordpress-tests-lib';
-}
-
-require_once $homepages_tests_dir . '/includes/functions.php'; // phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.UsingVariable
-
 /**
- * Setup our environment.
+ * Visit {@see https://mantle.alley.com/testing/test-framework.html} to learn more.
  */
-function homepages_manually_load_environment() {
-	/*
-	 * Tests won't start until the uploads directory is scanned, so use the
-	 * lightweight directory from the test install.
-	 *
-	 * @see https://core.trac.wordpress.org/changeset/29120.
-	 */
-	add_filter(
-		'pre_option_upload_path',
+\Mantle\Testing\manager()
+	// Rsync the plugin to plugins/homepages when testing.
+	->maybe_rsync_plugin()
+	// Set up custom filters and actions for theme testing.
+	->loaded(
 		function () {
-			return ABSPATH . 'wp-content/uploads';
+			/*
+			 * Tests won't start until the uploads directory is scanned, so use the
+			 * lightweight directory from the test install.
+			 *
+			 * @see https://core.trac.wordpress.org/changeset/29120.
+			 */
+			add_filter(
+				'pre_option_upload_path',
+				function () {
+					return ABSPATH . 'wp-content/uploads';
+				}
+			);
 		}
-	);
-
-	// Load this plugin.
-	require_once dirname( __DIR__ ) . '/homepages.php';
-}
-tests_add_filter( 'muplugins_loaded', 'homepages_manually_load_environment' );
-
-// Include core's bootstrap.
-require $homepages_tests_dir . '/includes/bootstrap.php'; // phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.UsingVariable
+	)
+	// Load the main file of the plugin.
+	->loaded( fn() => require_once __DIR__ . '/../homepages.php' )
+	->install();

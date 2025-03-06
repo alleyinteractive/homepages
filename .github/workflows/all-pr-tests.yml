@@ -32,4 +32,5 @@ jobs:
         uses: alleyinteractive/action-test-php@develop
         with:
           php-version: '8.2'
+          skip-services: 'true'
           skip-wordpress-install: true

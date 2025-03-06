@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<ruleset name="Homepages">
+	<!-- Inherit from existing rulesets -->
+	<rule ref="./vendor/alleyinteractive/alley-coding-standards/Alley-Interactive" />
+
+	<!-- Allow short array syntax -->
+	<rule ref="Universal.Arrays.DisallowShortArraySyntax.Found">
+		<severity>0</severity>
+	</rule>
+</ruleset>

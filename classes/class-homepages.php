@@ -58,7 +58,7 @@ class Homepages {
 		 * Filter whether or not this plugin will modify the main query on the
 		 * homepage.
 		 *
-		 * @param bool Disable homepage from modifying the query.
+		 * @param bool $modify_main_query Whether to modify the main query.
 		 */
 		if ( ! apply_filters( 'homepages_modify_main_query', $modify_main_query ) ) {
 			return;
@@ -110,7 +110,7 @@ class Homepages {
 			return new \WP_Error(
 				'rest_forbidden',
 				__( 'Sorry, you are not allowed to do that.', 'homepages' ),
-				array( 'status' => rest_authorization_required_code() )
+				[ 'status' => rest_authorization_required_code() ]
 			);
 		}
 
@@ -123,7 +123,7 @@ class Homepages {
 	public function create_post_type() {
 
 		$args = [
-			'labels' => [
+			'labels'              => [
 				'name'                  => __( 'Homepages', 'homepages' ),
 				'singular_name'         => __( 'Homepage', 'homepages' ),
 				'add_new'               => __( 'Add New Homepage', 'homepages' ),
@@ -203,7 +203,7 @@ class Homepages {
 	 */
 	public function get_latest_homepage_id() {
 		// Get the previewed homepage.
-		if ( is_preview() && isset( $_GET['p'] ) ) {
+		if ( is_preview() && isset( $_GET['p'] ) && isset( $_GET['preview_nonce'] ) && wp_verify_nonce( sanitize_key( $_GET['preview_nonce'] ), 'post_preview_' . absint( $_GET['p'] ) ) ) {
 			return absint( $_GET['p'] );
 		}
 

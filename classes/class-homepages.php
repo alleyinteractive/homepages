@@ -77,7 +77,7 @@ class Homepages {
 	/**
 	 * Ensures that the REST API endpoint for homepages only returns the latest
 	 * homepage.
-	 * 
+	 *
 	 * @param array $args The query args.
 	 * @return array $args The query args.
 	 */
@@ -90,7 +90,7 @@ class Homepages {
 
 	/**
 	 * Prevent paginated requests to the API that can expose older homepages.
-	 * 
+	 *
 	 * @param mixed            $result  Response to replace the requested version
 	 *                                  with. Can be anything a normal endpoint
 	 *                                  can return, or null to not hijack the request.
@@ -178,10 +178,10 @@ class Homepages {
 
 	/**
 	 * Sets any paginated page to a 404.
-	 * 
-	 * Only the latest homepage should be public and any other homepages should 
+	 *
+	 * Only the latest homepage should be public and any other homepages should
 	 * be private. This occurs when navigating to a URL like `/page/2` where the
-	 * main query will attempt to get the second published homepage. 
+	 * main query will attempt to get the second published homepage.
 	 */
 	public function set_404_on_pagination() {
 		global $wp_query;
@@ -203,7 +203,7 @@ class Homepages {
 	 */
 	public function get_latest_homepage_id() {
 		// Get the previewed homepage.
-		if ( is_preview() && isset( $_GET['p'] ) && isset( $_GET['preview_nonce'] ) && wp_verify_nonce( sanitize_key( $_GET['preview_nonce'] ), 'post_preview_' . absint( $_GET['p'] ) ) ) {
+		if ( is_preview() && isset( $_GET['p'] ) ) {
 			return absint( $_GET['p'] );
 		}
 

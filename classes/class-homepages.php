@@ -203,7 +203,9 @@ class Homepages {
 	 */
 	public function get_latest_homepage_id() {
 		// Get the previewed homepage.
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		if ( is_preview() && isset( $_GET['p'] ) ) {
+			// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			return absint( $_GET['p'] );
 		}
 

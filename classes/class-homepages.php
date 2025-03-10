@@ -58,7 +58,7 @@ class Homepages {
 		 * Filter whether or not this plugin will modify the main query on the
 		 * homepage.
 		 *
-		 * @param bool Disable homepage from modifying the query.
+		 * @param bool $modify_main_query Whether to modify the main query.
 		 */
 		if ( ! apply_filters( 'homepages_modify_main_query', $modify_main_query ) ) {
 			return;
@@ -77,7 +77,7 @@ class Homepages {
 	/**
 	 * Ensures that the REST API endpoint for homepages only returns the latest
 	 * homepage.
-	 * 
+	 *
 	 * @param array $args The query args.
 	 * @return array $args The query args.
 	 */
@@ -90,7 +90,7 @@ class Homepages {
 
 	/**
 	 * Prevent paginated requests to the API that can expose older homepages.
-	 * 
+	 *
 	 * @param mixed            $result  Response to replace the requested version
 	 *                                  with. Can be anything a normal endpoint
 	 *                                  can return, or null to not hijack the request.
@@ -110,7 +110,7 @@ class Homepages {
 			return new \WP_Error(
 				'rest_forbidden',
 				__( 'Sorry, you are not allowed to do that.', 'homepages' ),
-				array( 'status' => rest_authorization_required_code() )
+				[ 'status' => rest_authorization_required_code() ]
 			);
 		}
 
@@ -123,7 +123,7 @@ class Homepages {
 	public function create_post_type() {
 
 		$args = [
-			'labels' => [
+			'labels'              => [
 				'name'                  => __( 'Homepages', 'homepages' ),
 				'singular_name'         => __( 'Homepage', 'homepages' ),
 				'add_new'               => __( 'Add New Homepage', 'homepages' ),
@@ -178,10 +178,10 @@ class Homepages {
 
 	/**
 	 * Sets any paginated page to a 404.
-	 * 
-	 * Only the latest homepage should be public and any other homepages should 
+	 *
+	 * Only the latest homepage should be public and any other homepages should
 	 * be private. This occurs when navigating to a URL like `/page/2` where the
-	 * main query will attempt to get the second published homepage. 
+	 * main query will attempt to get the second published homepage.
 	 */
 	public function set_404_on_pagination() {
 		global $wp_query;
@@ -203,7 +203,9 @@ class Homepages {
 	 */
 	public function get_latest_homepage_id() {
 		// Get the previewed homepage.
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		if ( is_preview() && isset( $_GET['p'] ) ) {
+			// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			return absint( $_GET['p'] );
 		}
 

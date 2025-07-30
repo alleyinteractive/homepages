@@ -7,6 +7,9 @@
 
 namespace Homepages;
 
+/**
+ * Homepages test class.
+ */
 class Homepages_Tests extends \WP_UnitTestCase {
 	/**
 	 * Holds REST server instance.
@@ -28,7 +31,10 @@ class Homepages_Tests extends \WP_UnitTestCase {
 		do_action( 'rest_api_init' );
 	}
 
-	function test_get_latest_homepage_id() {
+	/**
+	 * Test get_latest_homepage_id function.
+	 */
+	public function test_get_latest_homepage_id() {
 		// Without a homepage created we will expect nothing to be returned.
 		$this->assertEquals( get_latest_homepage_id(), 0 );
 
@@ -58,7 +64,10 @@ class Homepages_Tests extends \WP_UnitTestCase {
 		$this->assertEquals( get_latest_homepage_id(), $another_homepage_id );
 	}
 
-	function test_update_homepage_query_conditionals() {
+	/**
+	 * Test update_homepage_query_conditionals function.
+	 */
+	public function test_update_homepage_query_conditionals() {
 		// Create a new homepage.
 		$homepage_id = self::factory()->post->create(
 			[
@@ -86,7 +95,10 @@ class Homepages_Tests extends \WP_UnitTestCase {
 		$this->assertTrue( is_home() );
 	}
 
-	function test_not_set_404_on_pagination() {
+	/**
+	 * Test that 404 is not set on the main homepage.
+	 */
+	public function test_not_set_404_on_pagination() {
 		// Create homepages.
 		$homepage_ids = self::factory()->post->create_many(
 			10,
@@ -106,7 +118,10 @@ class Homepages_Tests extends \WP_UnitTestCase {
 		$this->assertEquals( $homepage_ids[9], $wp_query->posts[0]->ID );
 	}
 
-	function test_set_404_on_pagination() {
+	/**
+	 * Test that 404 is set when pagination is attempted.
+	 */
+	public function test_set_404_on_pagination() {
 		// Create homepages.
 		$homepage_ids = self::factory()->post->create_many(
 			10,
@@ -124,7 +139,10 @@ class Homepages_Tests extends \WP_UnitTestCase {
 		$this->assertTrue( is_404() );
 	}
 
-	function test_redirect_to_404() {
+	/**
+	 * Test redirecting to 404.
+	 */
+	public function test_redirect_to_404() {
 		// Create a new homepage.
 		$homepage_id = self::factory()->post->create(
 			[
@@ -138,7 +156,10 @@ class Homepages_Tests extends \WP_UnitTestCase {
 		$this->assertTrue( is_404() );
 	}
 
-	function test_rest_api_latest_homepage() {
+	/**
+	 * Test REST API latest homepage endpoint.
+	 */
+	public function test_rest_api_latest_homepage() {
 		// Create homepages.
 		$homepage_ids = self::factory()->post->create_many(
 			10,
@@ -147,14 +168,17 @@ class Homepages_Tests extends \WP_UnitTestCase {
 			]
 		);
 
-		$request = new \WP_REST_Request( 'GET', "/wp/v2/homepage" );
+		$request  = new \WP_REST_Request( 'GET', '/wp/v2/homepage' );
 		$response = $this->wp_rest_server->dispatch( $request );
 
 		$this->assertEquals( 1, count( $response->data ) );
 		$this->assertEquals( $homepage_ids[9], $response->data[0]['id'] );
 	}
 
-	function test_rest_api_prevent_paginated_requests() {
+	/**
+	 * Test REST API prevention of paginated requests.
+	 */
+	public function test_rest_api_prevent_paginated_requests() {
 		// Create homepages.
 		$homepage_ids = self::factory()->post->create_many(
 			10,
@@ -163,7 +187,7 @@ class Homepages_Tests extends \WP_UnitTestCase {
 			]
 		);
 
-		$request = new \WP_REST_Request( 'GET', "/wp/v2/homepage" );
+		$request = new \WP_REST_Request( 'GET', '/wp/v2/homepage' );
 		$request->set_param( 'page', 2 );
 		$response = $this->wp_rest_server->dispatch( $request );
 

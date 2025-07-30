@@ -8,18 +8,41 @@
         "email": "noreply@alleyinteractive.com"
       }
     ],
+    "require": {
+      "php": "^8.0"
+    },
     "require-dev": {
-      "alleyinteractive/alley-coding-standards": "^0.3.0",
-      "phpunit/phpunit": "7.5.*",
-      "yoast/phpunit-polyfills": "^1.0"
+      "alleyinteractive/alley-coding-standards": "^2.0",
+      "mantle-framework/testkit": "^1.4",
+      "phpunit/phpunit": "^9.0",
+      "szepeviktor/phpstan-wordpress": "^2.0"
+    },
+    "config": {
+      "allow-plugins": {
+            "dealerdirect/phpcodesniffer-composer-installer": true,
+            "pestphp/pest-plugin": true,
+            "alleyinteractive/composer-wordpress-autoloader": true
+        },
+      "sort-packages": true
     },
     "scripts": {
       "phpcbf": "phpcbf .",
-      "phpcs": "phpcs . --runtime-set text_domain homepages --runtime-set prefixes homepages",
+      "phpcs": "phpcs .",
+      "phpstan": "phpstan --memory-limit=1G",
       "phpunit": "phpunit",
+      "lint": [
+        "@phpcs",
+        "@phpstan"
+      ],
+      "lint:fix": [
+        "@phpcbf"
+      ],
+      "test": [
+        "@lint",
+        "@phpunit"
+      ],
       "setup": [
-        "composer install",
-        ". $NVM_DIR/nvm.sh && nvm use && npm ci && npm run build"
+        "composer install"
       ]
     }
   }
